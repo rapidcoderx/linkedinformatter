@@ -65,7 +65,6 @@ Unicode includes thousands of characters that look like styled versions of regul
 | Live Markdown Preview | ✅ Complete | Auto-detects markdown in editor and renders formatted Unicode in preview |
 | Feature Info Popup | ✅ Complete | Help icon (?) in header opens feature list popup |
 | Post Optimization Score | ✅ Complete | Real-time 0-100 scoring against LinkedIn best practices (hook, readability, formatting, structure, length) |
-| "See More" Fold Preview | ✅ Complete | Visual fold line showing where LinkedIn truncates posts (~5 lines desktop, ~3 lines mobile) |
 | Device Preview | ✅ Complete | Phone (375px) and tablet (768px) preview popups with realistic LinkedIn app frame |
 | Character Counter | ✅ Complete | Live count with LinkedIn 3,000 char limit warning |
 | Word/Line/Read Stats | ✅ Complete | Live statistics in preview footer |
@@ -222,7 +221,7 @@ Express server that:
 #### CSS Fixes
 - Fixed `@import` order in `src/css/input.css` — Google Fonts import now precedes `@import "tailwindcss"` to eliminate build warning
 
-### v1.2.0 — Post Optimization Score & "See More" Fold Preview
+### v1.2.0 — Post Optimization Score
 
 #### Post Optimization Score
 - Added `calculatePostScore(text)` function that analyzes posts against LinkedIn best practices
@@ -237,32 +236,17 @@ Express server that:
 - Dynamic actionable tips (max 4) that change based on post content
 - Grade labels from 🏆 Excellent to 🚧 Needs work
 
-#### "See More" Fold Preview
-- Added visual dashed fold line in LinkedIn preview based on line count (~5 desktop, ~3 mobile)
-- Uses `findFoldPosition()` that calculates visible lines including text wrapping
-- Smart word-boundary detection for clean fold positioning
-- Toggleable via checkbox in preview header (enabled by default)
-- Shows fold position info badges: mobile (~3 lines) vs desktop (~5 lines) with char counts
-- Content below fold rendered in lighter color to visually indicate hidden portion
-- `renderPreviewWithFold()` function builds DOM dynamically with fold indicator
-
 #### Future Enhancement Ideas Added
 - Hashtag Suggestions, Post History & Comparison, A/B Hook Tester
 - Tone Analyzer, Scheduled Post Drafts, Accessibility Audit Mode
 
-### v1.2.1 — Device Preview, Fold Fix & Code Block Fix
+### v1.2.1 — Device Preview & Code Block Fix
 
 #### Device Preview (Phone & Tablet)
 - Added phone (375px) and tablet (768px) preview buttons in preview header
 - Renders in a realistic device frame popup with notch, LinkedIn app chrome, and action bar
 - Shows post exactly as it would appear in the LinkedIn mobile/tablet app
 - Modal closes on ESC or click outside
-
-#### "See More" Fold Fix
-- Changed from character-count-only to line-count-aware fold calculation
-- `findFoldPosition(text, maxLines, maxChars)` counts visible lines including wrapped long lines
-- Desktop: ~5 lines / ~480 chars, Mobile: ~3 lines / ~300 chars
-- No longer triggers fold prematurely on short content with line breaks
 
 #### Code Block Formatting Fix
 - Fixed code block processing order: triple-backtick blocks now processed BEFORE inline code

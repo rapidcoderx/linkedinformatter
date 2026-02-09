@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const plainPreview = document.getElementById('plainPreview');
   const featureInfoBtn = document.getElementById('featureInfoBtn');
   const featurePopup = document.getElementById('featurePopup');
-  const foldToggle = document.getElementById('foldToggle');
 
   // Score panel DOM
   const scoreRingFg = document.getElementById('scoreRingFg');
@@ -380,13 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
     linkedinPreview.classList.add('hidden');
   });
 
-  // Fold toggle re-renders preview
-  if (foldToggle) {
-    foldToggle.addEventListener('change', () => {
-      updatePreview();
-    });
-  }
-
   // ─── Preview Update ────────────────────────────────────────────
 
   /**
@@ -424,8 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
       displayText = clientSideMarkdownConvert(text);
     }
 
-    // LinkedIn preview: render with fold indicator
-    renderPreviewWithFold(displayText);
+    // LinkedIn preview
+    previewContent.textContent = displayText;
     plainPreviewContent.textContent = displayText;
 
     // Update optimization score
@@ -679,101 +671,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       scoreTips.innerHTML = '<li class="flex items-start gap-2"><span>✅</span><span class="text-gray-600">Your post looks great! No suggestions.</span></li>';
     }
-  }
-
-  // ─── "See More" Fold Preview ───────────────────────────────────
-  // LinkedIn fold behavior:
-  // - Desktop: ~5 visible lines OR ~210 chars (whichever comes first)
-  // - Mobile: ~3 visible lines OR ~140 chars (whichever comes first)
-  // Blank lines count as visible lines. Long lines wrap based on container width.
-  const FOLD_DESKTOP_LINES = 5;
-  const FOLD_MOBILE_LINES = 3;
-  const FOLD_DESKTOP_CHARS = 480;
-  const FOLD_MOBILE_CHARS = 300;
-
-  function findFoldPosition(text, maxLines, maxChars) {
-    const lines = text.split('\n');
-    let visibleLines = 0;
-    let charPos = 0;
-    // Approximate chars per visual line in the preview container (~55 chars on desktop)
-    const charsPerVisualLine = maxChars > 400 ? 55 : 38;
-
-    for (let i = 0; i < lines.length; i++) {
-      const lineText = lines[i];
-      // Each newline-separated line takes at least 1 visual line
-      // Long lines wrap — estimate wrapped lines
-      const wrappedLines = lineText.length === 0 ? 1 : Math.ceil(lineText.length / charsPerVisualLine);
-      visibleLines += wrappedLines;
-
-      if (visibleLines > maxLines || (charPos + lineText.length) > maxChars) {
-        // Fold at the start of this line (include lines before this one)
-        return charPos > 0 ? charPos - 1 : 0; // -1 to exclude the \n before this line
-      }
-
-      charPos += lineText.length + 1; // +1 for the \n
-    }
-
-    return -1; // No fold needed
-  }
-
-  function renderPreviewWithFold(text) {
-    const showFold = foldToggle && foldToggle.checked;
-
-    if (!showFold) {
-      previewContent.textContent = text;
-      return;
-    }
-
-    const desktopFoldPos = findFoldPosition(text, FOLD_DESKTOP_LINES, FOLD_DESKTOP_CHARS);
-
-    if (desktopFoldPos < 0 || desktopFoldPos >= text.length) {
-      // No fold needed
-      previewContent.textContent = text;
-      return;
-    }
-
-    // Snap to word/line boundary for clean break
-    let foldPos = desktopFoldPos;
-    const chars = [...text];
-    // Walk back to find a space or newline for clean break
-    let tmpPos = foldPos;
-    while (tmpPos > 0 && text[tmpPos] !== ' ' && text[tmpPos] !== '\n') {
-      tmpPos--;
-    }
-    if (tmpPos > foldPos * 0.5) foldPos = tmpPos;
-
-    const aboveFold = text.slice(0, foldPos).trimEnd();
-    const belowFold = text.slice(foldPos).trimStart();
-
-    // Build DOM
-    previewContent.innerHTML = '';
-
-    const aboveEl = document.createElement('span');
-    aboveEl.textContent = aboveFold;
-    previewContent.appendChild(aboveEl);
-
-    // Fold indicator
-    const foldEl = document.createElement('div');
-    foldEl.className = 'fold-line';
-    foldEl.innerHTML = '<span class="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">…see more</span>';
-    previewContent.appendChild(foldEl);
-
-    const belowEl = document.createElement('span');
-    belowEl.className = 'text-gray-400';
-    belowEl.textContent = belowFold;
-    previewContent.appendChild(belowEl);
-
-    // Mobile fold calculation
-    const mobileFoldPos = findFoldPosition(text, FOLD_MOBILE_LINES, FOLD_MOBILE_CHARS);
-    const mobileFoldDisplay = mobileFoldPos > 0 ? mobileFoldPos : foldPos;
-
-    // Add fold info badge
-    const infoEl = document.createElement('div');
-    infoEl.className = 'mt-3 flex items-center gap-3 text-[10px] flex-wrap';
-    infoEl.innerHTML = `<span class="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-full"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ~${FOLD_MOBILE_LINES} lines / ~${mobileFoldDisplay} chars (mobile)</span>`
-      + `<span class="flex items-center gap-1 text-linkedin-600 bg-linkedin-50 px-2 py-1 rounded-full"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> ~${FOLD_DESKTOP_LINES} lines / ~${foldPos} chars (desktop)</span>`
-      + `<span class="text-gray-400">${text.length} total</span>`;
-    previewContent.appendChild(infoEl);
   }
 
   // ─── Copy ──────────────────────────────────────────────────────

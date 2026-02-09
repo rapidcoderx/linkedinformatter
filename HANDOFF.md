@@ -83,13 +83,6 @@ Modern routing, better error handling. Note: v5 removed wildcard `*` route patte
 - Visual ring uses SVG `stroke-dashoffset` animation; bars use CSS width transitions
 - Tips are contextual — they change based on what's missing (max 4 shown)
 
-### "See More" Fold Preview
-- `findFoldPosition(text, maxLines, maxChars)` calculates fold using line counting with wrap awareness
-- `renderPreviewWithFold(text)` builds the preview DOM with fold indicator
-- Desktop: ~5 visible lines / ~480 chars; Mobile: ~3 lines / ~300 chars
-- Toggled via `#foldToggle` checkbox in preview header
-- Content below fold is rendered in lighter color (`text-gray-400`)
-
 ### Device Preview (Phone & Tablet)
 - `openDevicePreview(mode)` opens a modal with phone or tablet frame
 - Phone: 375px width; Tablet: 768px width
