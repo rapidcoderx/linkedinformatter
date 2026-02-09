@@ -304,7 +304,7 @@ Once your project is connected to a Git repository in Vercel:
 
 ## Troubleshooting
 
-### Build Fails: "CSS not found"
+### Build Fails: "CSS not found" or "could not determine executable to run"
 
 **Problem**: Tailwind CSS build failed or was skipped.
 
@@ -312,7 +312,9 @@ Once your project is connected to a Git repository in Vercel:
 1. Verify `build:css` script in `package.json`
 2. Check Build Logs in Vercel Dashboard
 3. Ensure `src/css/input.css` exists in your repository
-4. Make sure `tailwindcss` is listed in `devDependencies`
+4. **IMPORTANT**: Make sure `tailwindcss` is listed in `dependencies` (not `devDependencies`)
+   - Vercel needs build tools in `dependencies` to access them during deployment
+5. If you moved packages, commit and redeploy: `git add . && git commit -m "Fix deps" && git push`
 
 ### 404 on All Routes
 
