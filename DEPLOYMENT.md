@@ -161,33 +161,24 @@ Test all features as described in Step 3 of Option A.
 
 ```json
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server.js"
+      "source": "/api/(.*)",
+      "destination": "/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "server.js"
+      "source": "/(.*)",
+      "destination": "/server.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
 ```
 
 **What it does**:
-- `builds`: Tells Vercel to build `server.js` as a Node.js serverless function
-- `routes`: Routes all `/api/*` and other requests to `server.js`
-- `env`: Sets `NODE_ENV=production` for the deployment
+- `rewrites`: Routes all `/api/*` and other requests to `server.js`
+- Vercel automatically detects Node.js and sets up serverless functions
+- Uses modern Vercel configuration (no legacy `builds` property needed)
+- `NODE_ENV` is automatically set to `production` by Vercel
 
 ### `.vercelignore`
 
@@ -315,6 +306,16 @@ Once your project is connected to a Git repository in Vercel:
 4. **IMPORTANT**: Make sure `tailwindcss` is listed in `dependencies` (not `devDependencies`)
    - Vercel needs build tools in `dependencies` to access them during deployment
 5. If you moved packages, commit and redeploy: `git add . && git commit -m "Fix deps" && git push`
+
+### Warning: "Due to builds existing in your configuration file..."
+
+**Problem**: Vercel shows warning about unused Build Settings due to legacy `builds` property.
+
+**Solution**:
+- ✅ **Already fixed** — The project now uses modern `rewrites` configuration
+- If you see this warning, your `vercel.json` still has the legacy `builds` property
+- Update to the simplified configuration shown in the Configuration Files section
+- The warning is harmless but indicates you're using an outdated config format
 
 ### 404 on All Routes
 
