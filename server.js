@@ -181,9 +181,11 @@ function toMonospaceUnicode(text, map) {
   return [...text].map(ch => map[ch] || ch).join('');
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`\n🚀 LinkedIn Text Formatter running at http://localhost:${PORT}\n`);
-});
+// Start server (only for local development, not Vercel)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 LinkedIn Text Formatter running at http://localhost:${PORT}\n`);
+  });
+}
 
 module.exports = app;

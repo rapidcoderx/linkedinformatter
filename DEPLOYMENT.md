@@ -331,6 +331,25 @@ Once your project is connected to a Git repository in Vercel:
 - Your deployment will still succeed with this warning present
 - The warning does not affect functionality or performance
 
+### 500 Error: FUNCTION_INVOCATION_FAILED
+
+**Problem**: Serverless function crashes with "500: INTERNAL_SERVER_ERROR" and "FUNCTION_INVOCATION_FAILED".
+
+**Solution**:
+- ✅ **Already fixed** — The server.js now conditionally runs `app.listen()` only for local dev
+- **Root cause**: Calling `app.listen()` in serverless environments causes crashes
+- Vercel handles server startup automatically; you only need to export the Express app
+- If you see this error, ensure your server.js has:
+  ```javascript
+  // Only start server if run directly (not imported by Vercel)
+  if (require.main === module) {
+    app.listen(PORT, () => { /* ... */ });
+  }
+  module.exports = app;
+  ```
+- Check Runtime Logs in Vercel Dashboard for specific error details
+- Verify all dependencies are installed correctly
+
 ### 404 on All Routes
 
 **Problem**: Routes not configured correctly.
