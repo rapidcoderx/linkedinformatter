@@ -350,6 +350,17 @@ Once your project is connected to a Git repository in Vercel:
 - Check Runtime Logs in Vercel Dashboard for specific error details
 - Verify all dependencies are installed correctly
 
+### Error [ERR_REQUIRE_ESM]: require() of ES Module not supported
+
+**Problem**: Node.js crashes with "require() of ES Module... not supported" error.
+
+**Solution**:
+- ✅ **Already fixed** — Removed unused `marked` dependency that was causing ESM/CommonJS conflict
+- **Root cause**: Trying to `require()` an ES Module in CommonJS code
+- The project uses custom regex-based markdown conversion, so the `marked` library wasn't needed
+- If you add new dependencies, check if they're ES Modules and use dynamic `import()` if needed
+- Alternative: Convert entire project to ES Modules by adding `"type": "module"` to package.json
+
 ### 404 on All Routes
 
 **Problem**: Routes not configured correctly.
@@ -366,7 +377,8 @@ Once your project is connected to a Git repository in Vercel:
 **Solution**:
 1. Check Runtime Logs in Vercel Dashboard
 2. Test API locally: `npm start` → `curl http://localhost:3000/api/health`
-3. Verify `marked` package is installed in `dependencies` (not `devDependencies`)
+3. Verify all required dependencies are installed correctly
+4. Check for syntax errors or import issues in server.js
 
 ### Static Files Not Loading
 

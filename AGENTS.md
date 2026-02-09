@@ -35,7 +35,7 @@ Unicode includes thousands of characters that look like styled versions of regul
 | Frontend | Vanilla JavaScript | No framework overhead, fast load |
 | Editor | Native `<textarea>` | Simple, reliable, accessible |
 | Icons | Lucide | Modern, tree-shakeable, clean |
-| Markdown | marked (server) + custom (client) | Dual processing for reliability |
+| Markdown | Custom regex conversion | Lightweight, no dependencies, consistent across client/server |
 
 ### Design Principles
 1. **Zero Dependencies on Client Frameworks** — No React, Vue, or Angular. Pure vanilla JS for performance and simplicity.

@@ -3,7 +3,6 @@ const path = require('path');
 const compression = require('compression');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const { marked } = require('marked');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
