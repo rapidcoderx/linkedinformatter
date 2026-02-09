@@ -161,24 +161,37 @@ Test all features as described in Step 3 of Option A.
 
 ```json
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/server.js"
+      "src": "/(.*)",
+      "dest": "server.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
 ```
 
 **What it does**:
-- `rewrites`: Routes all `/api/*` and other requests to `server.js`
-- Vercel automatically detects Node.js and sets up serverless functions
-- Uses modern Vercel configuration (no legacy `builds` property needed)
-- `NODE_ENV` is automatically set to `production` by Vercel
+- `version: 2`: Uses Vercel Build API v2
+- `builds`: Tells Vercel to build `server.js` as a Node.js serverless function
+- `routes`: Routes all `/api/*` and other requests to `server.js`
+- `env`: Sets `NODE_ENV=production` for the deployment
+- Vercel auto-detects and runs the `build` script from `package.json` during deployment
+
+**Note**: You may see a warning about "builds existing in your configuration file" - this is harmless and just means Dashboard Build Settings are overridden by this file, which is intentional.
 
 ### `.vercelignore`
 
@@ -309,13 +322,14 @@ Once your project is connected to a Git repository in Vercel:
 
 ### Warning: "Due to builds existing in your configuration file..."
 
-**Problem**: Vercel shows warning about unused Build Settings due to legacy `builds` property.
+**Problem**: Vercel shows warning about unused Build Settings due to `builds` property in `vercel.json`.
 
 **Solution**:
-- ✅ **Already fixed** — The project now uses modern `rewrites` configuration
-- If you see this warning, your `vercel.json` still has the legacy `builds` property
-- Update to the simplified configuration shown in the Configuration Files section
-- The warning is harmless but indicates you're using an outdated config format
+- ⚠️ **This warning is harmless** — You can safely ignore it
+- It simply means the Build Settings in your Vercel Dashboard are overridden by `vercel.json`
+- This is intentional and correct for this project
+- Your deployment will still succeed with this warning present
+- The warning does not affect functionality or performance
 
 ### 404 on All Routes
 
