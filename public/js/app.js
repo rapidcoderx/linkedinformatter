@@ -681,15 +681,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Convert markdown to Unicode formatting (same as preview)
+    let textToCopy = text;
+    if (containsMarkdown(text)) {
+      textToCopy = clientSideMarkdownConvert(text);
+    }
+
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(textToCopy);
       showToast('Copied to clipboard!', 'success');
       copyBtn.classList.add('copy-pulse');
       setTimeout(() => copyBtn.classList.remove('copy-pulse'), 300);
     } catch (err) {
       // Fallback
       const textarea = document.createElement('textarea');
-      textarea.value = text;
+      textarea.value = textToCopy;
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
