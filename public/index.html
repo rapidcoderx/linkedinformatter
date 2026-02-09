@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Text Formatter — Bold, Italic, Unicode Styling</title>
+  <meta name="description" content="Free LinkedIn text formatter. Transform your posts with bold, italic, monospace, and decorative Unicode styling. Slash commands, markdown support, real-time preview.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  
+  <!-- Styles -->
+  <link href="/css/styles.css" rel="stylesheet">
+  
+  <style>
+    /* Extra inline styles for things Tailwind can't easily handle */
+    .editor-container [contenteditable]:empty::before {
+      content: attr(data-placeholder);
+      color: #9ca3af;
+      pointer-events: none;
+    }
+    
+    .linkedin-preview-card {
+      font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Fira Sans', Ubuntu, Oxygen, 'Oxygen Sans', Cantarell, 'Droid Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Lucida Grande', Helvetica, Arial, sans-serif;
+    }
+    
+    .fade-enter { animation: fadeIn 0.3s ease-out; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes copyPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .copy-pulse { animation: copyPulse 0.3s ease-out; }
+    
+    /* Slash command menu */
+    .slash-menu {
+      position: absolute;
+      z-index: 100;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px -12px rgba(0,0,0,0.15);
+      max-height: 280px;
+      overflow-y: auto;
+      width: 300px;
+    }
+    
+    .slash-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    
+    .slash-menu-item:hover,
+    .slash-menu-item.active {
+      background: #f0f7ff;
+    }
+    
+    .slash-menu-item .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    
+    .slash-menu-item.active .icon {
+      background: #e0effe;
+      color: #0a66c2;
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: #1e293b;
+      color: white;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 20px 60px -12px rgba(0,0,0,0.25);
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .toast.success { border-left: 4px solid #10b981; }
+    .toast.error { border-left: 4px solid #ef4444; }
+    .toast.info { border-left: 4px solid #0a66c2; }
+    
+    /* Score ring */
+    .score-ring {
+      width: 80px;
+      height: 80px;
+      transform: rotate(-90deg);
+    }
+    .score-ring circle {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+    }
+    .score-ring .ring-bg { stroke: #e5e7eb; }
+    .score-ring .ring-fg {
+      stroke: currentColor;
+      transition: stroke-dashoffset 0.6s ease, color 0.3s ease;
+    }
+    .score-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* See More fold line */
+    .fold-line {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      margin: 4px 0;
+    }
+    .fold-line::before {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, #f59e0b 0, #f59e0b 4px, transparent 4px, transparent 8px);
+    }
+    .fold-line::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, #f59e0b 0, #f59e0b 4px, transparent 4px, transparent 8px);
+    }
+    
+    /* Device preview modal */
+    .device-frame {
+      background: #1a1a2e;
+      border-radius: 32px;
+      padding: 12px;
+      box-shadow: 0 25px 80px -12px rgba(0,0,0,0.4);
+      margin: 0 auto;
+    }
+    .device-frame.phone {
+      width: 375px;
+      max-height: 80vh;
+    }
+    .device-frame.tablet {
+      width: 768px;
+      max-height: 85vh;
+    }
+    .device-frame .device-notch {
+      width: 120px;
+      height: 5px;
+      background: #333;
+      border-radius: 4px;
+      margin: 4px auto 8px;
+    }
+    .device-frame .device-screen {
+      background: white;
+      border-radius: 20px;
+      overflow-y: auto;
+      max-height: calc(80vh - 60px);
+    }
+    .device-frame.tablet .device-screen {
+      max-height: calc(85vh - 60px);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+  
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-linkedin-500 rounded-xl flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-gray-900 tracking-tight">LinkedIn Text Formatter</h1>
+            <p class="text-xs text-gray-500 hidden sm:block">Format posts with Unicode styling</p>
+          </div>
+        </div>
+        
+        <!-- Header Actions -->
+        <div class="flex items-center gap-2">
+          <button id="markdownImportBtn" class="btn-secondary text-sm !py-2 !px-3" title="Import Markdown">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Import MD</span>
+          </button>
+          <button id="clearBtn" class="btn-ghost text-sm" title="Clear editor">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Clear</span>
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <div class="relative">
+            <button id="featureInfoBtn" class="btn-icon" title="Features">
+              <i data-lucide="help-circle" class="w-4 h-4"></i>
+            </button>
+            <!-- Feature Info Popup -->
+            <div id="featurePopup" class="hidden absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 p-5 z-50" style="animation: fadeIn 0.2s ease-out;">
+              <h3 class="text-sm font-bold text-gray-900 mb-3">Features</h3>
+              <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-linkedin-50 flex items-center justify-center flex-shrink-0"><i data-lucide="type" class="w-4 h-4 text-linkedin-600"></i></div>
+                  <div><p class="text-sm font-medium text-gray-800">Unicode Text Styling</p><p class="text-xs text-gray-500">Bold, italic, monospace, script, fraktur & more</p></div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-linkedin-50 flex items-center justify-center flex-shrink-0"><i data-lucide="terminal" class="w-4 h-4 text-linkedin-600"></i></div>
+                  <div><p class="text-sm font-medium text-gray-800">Slash Commands</p><p class="text-xs text-gray-500">Type / for 25+ formatting & template commands</p></div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-linkedin-50 flex items-center justify-center flex-shrink-0"><i data-lucide="hash" class="w-4 h-4 text-linkedin-600"></i></div>
+                  <div><p class="text-sm font-medium text-gray-800">Markdown Support</p><p class="text-xs text-gray-500">Paste markdown & convert to LinkedIn formatting</p></div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-linkedin-50 flex items-center justify-center flex-shrink-0"><i data-lucide="copy" class="w-4 h-4 text-linkedin-600"></i></div>
+                  <div><p class="text-sm font-medium text-gray-800">One-Click Copy</p><p class="text-xs text-gray-500">Copy formatted text directly to clipboard</p></div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-linkedin-50 flex items-center justify-center flex-shrink-0"><i data-lucide="download" class="w-4 h-4 text-linkedin-600"></i></div>
+                  <div><p class="text-sm font-medium text-gray-800">Export Options</p><p class="text-xs text-gray-500">Download as .txt or .md files</p></div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-linkedin-50 flex items-center justify-center flex-shrink-0"><i data-lucide="eye" class="w-4 h-4 text-linkedin-600"></i></div>
+                  <div><p class="text-sm font-medium text-gray-800">Live Preview</p><p class="text-xs text-gray-500">Real-time LinkedIn post preview as you type</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Editor + Preview Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Editor Panel -->
+      <div class="card overflow-hidden">
+        <!-- Toolbar -->
+        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+          <div class="flex items-center gap-1 flex-wrap">
+            <!-- Text Style Buttons -->
+            <div class="flex items-center gap-1 pr-3 border-r border-gray-200 mr-2">
+              <button class="toolbar-btn" data-style="bold" title="Bold (Ctrl+B)">
+                <strong>𝗕</strong>
+              </button>
+              <button class="toolbar-btn" data-style="italic" title="Italic (Ctrl+I)">
+                <em>𝘐</em>
+              </button>
+              <button class="toolbar-btn" data-style="boldItalic" title="Bold Italic">
+                <strong><em>𝑩𝑰</em></strong>
+              </button>
+              <button class="toolbar-btn" data-style="monospace" title="Monospace">
+                <span class="font-mono text-xs">𝙼</span>
+              </button>
+            </div>
+            
+            <!-- Decorative Style Buttons -->
+            <div class="flex items-center gap-1 pr-3 border-r border-gray-200 mr-2">
+              <button class="toolbar-btn" data-style="circled" title="Circled Text">
+                Ⓐ
+              </button>
+              <button class="toolbar-btn" data-style="squared" title="Squared Text">
+                🅰
+              </button>
+              <button class="toolbar-btn" data-style="scriptBold" title="Script Bold">
+                𝓐
+              </button>
+              <button class="toolbar-btn" data-style="fraktur" title="Fraktur">
+                𝔄
+              </button>
+              <button class="toolbar-btn" data-style="doubleStruck" title="Double-Struck">
+                𝔸
+              </button>
+            </div>
+            
+            <!-- Formatting Actions -->
+            <div class="flex items-center gap-1">
+              <button class="toolbar-btn" data-action="bullet" title="Bullet List">
+                <i data-lucide="list" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="toolbar-btn" data-action="numbered" title="Numbered List">
+                <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="toolbar-btn" data-action="divider" title="Insert Divider">
+                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="toolbar-btn" id="emojiBtn" title="Insert Emoji">
+                😀
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Editor Label -->
+        <div class="px-4 pt-3 pb-1 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Editor</span>
+            <span class="text-xs text-gray-400">— Type / for commands</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="charCounter" class="char-counter text-gray-400">0 / 3,000</span>
+          </div>
+        </div>
+        
+        <!-- Editable Area -->
+        <div class="px-4 pb-4 relative editor-container">
+          <textarea 
+            id="editor" 
+            class="editor-area scrollbar-thin" 
+            style="min-height: 460px; max-height: 600px;"
+            placeholder="Start typing your LinkedIn post here... &#10;&#10;💡 Type / to see available commands&#10;✨ Select text and click toolbar buttons to format&#10;📋 Paste markdown content for auto-conversion"
+            spellcheck="true"
+          ></textarea>
+          <!-- Slash command menu (hidden by default) -->
+          <div id="slashMenu" class="slash-menu hidden"></div>
+        </div>
+        
+        <!-- Bottom Actions -->
+        <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between gap-3 flex-wrap">
+          <div class="flex items-center gap-2">
+            <button id="undoBtn" class="btn-ghost text-xs" title="Undo (Ctrl+Z)">
+              <i data-lucide="undo-2" class="w-3.5 h-3.5"></i> Undo
+            </button>
+            <button id="redoBtn" class="btn-ghost text-xs" title="Redo (Ctrl+Y)">
+              <i data-lucide="redo-2" class="w-3.5 h-3.5"></i> Redo
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="exportTextBtn" class="btn-secondary text-xs !py-1.5 !px-3" title="Export as .txt">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Export .txt
+            </button>
+            <button id="exportMdBtn" class="btn-secondary text-xs !py-1.5 !px-3" title="Export as .md">
+              <i data-lucide="file-code" class="w-3.5 h-3.5"></i> Export .md
+            </button>
+            <button id="copyBtn" class="btn-primary text-sm !py-2 !px-5">
+              <i data-lucide="copy" class="w-4 h-4"></i> Copy to Clipboard
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Preview Panel -->
+      <div class="card overflow-hidden">
+        <!-- Preview Header -->
+        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Live Preview</span>
+            <span class="badge-success text-[10px]">Real-time</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="previewLinkedin" class="toolbar-btn active text-xs" data-preview="linkedin">
+              <i data-lucide="linkedin" class="w-3 h-3"></i> LinkedIn
+            </button>
+            <button id="previewPlain" class="toolbar-btn text-xs" data-preview="plain">
+              <i data-lucide="align-left" class="w-3 h-3"></i> Plain
+            </button>
+            <div class="w-px h-4 bg-gray-200 mx-1"></div>
+            <label class="flex items-center gap-1.5 cursor-pointer select-none" title="Show where LinkedIn truncates your post">
+              <input type="checkbox" id="foldToggle" class="w-3.5 h-3.5 rounded border-gray-300 text-linkedin-500 focus:ring-linkedin-500/30 cursor-pointer" checked>
+              <span class="text-[10px] font-medium text-gray-500">See More</span>
+            </label>
+            <div class="w-px h-4 bg-gray-200 mx-1"></div>
+            <button id="previewPhone" class="toolbar-btn text-xs" title="Phone preview">
+              <i data-lucide="smartphone" class="w-3 h-3"></i>
+            </button>
+            <button id="previewTablet" class="toolbar-btn text-xs" title="Tablet preview">
+              <i data-lucide="tablet" class="w-3 h-3"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- LinkedIn Preview Mock -->
+        <div class="p-4">
+          <div id="linkedinPreview" class="linkedin-preview-card">
+            <!-- LinkedIn Post Card -->
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <!-- Post Header -->
+              <div class="p-4 flex items-start gap-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-linkedin-400 to-linkedin-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                  A
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="font-semibold text-sm text-gray-900">Alex Rivera</p>
+                  <p class="text-xs text-gray-500">Product Marketing Lead @ TechForward | Content Strategy & Growth</p>
+                  <p class="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                    Just now · <i data-lucide="globe" class="w-3 h-3 inline"></i>
+                  </p>
+                </div>
+              </div>
+              
+              <!-- Post Body -->
+              <div class="px-4 pb-4">
+                <div id="previewContent" class="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap break-words overflow-y-auto scrollbar-thin" style="height: 340px;"></div>
+              </div>
+              
+              <!-- Post Engagement Bar -->
+              <div class="px-4 py-2 border-t border-gray-100">
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                  <span>👍 ❤️ 💡 42</span>
+                  <span>8 comments · 3 reposts</span>
+                </div>
+              </div>
+              <div class="px-2 py-1 border-t border-gray-100 flex items-center justify-around">
+                <button class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-gray-50 text-xs font-medium text-gray-600 transition">
+                  <i data-lucide="thumbs-up" class="w-4 h-4"></i> Like
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-gray-50 text-xs font-medium text-gray-600 transition">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i> Comment
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-gray-50 text-xs font-medium text-gray-600 transition">
+                  <i data-lucide="repeat-2" class="w-4 h-4"></i> Repost
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-gray-50 text-xs font-medium text-gray-600 transition">
+                  <i data-lucide="send" class="w-4 h-4"></i> Send
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Plain text preview (hidden by default) -->
+          <div id="plainPreview" class="hidden">
+            <div class="preview-area scrollbar-thin font-mono text-sm" id="plainPreviewContent" style="height: 340px; overflow-y: auto;">
+              <span class="text-gray-400 italic">Your formatted post text will appear here...</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Preview Footer -->
+        <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <div id="previewStats" class="text-xs text-gray-500">
+            <span id="wordCount">0 words</span> · <span id="lineCount">0 lines</span> · <span id="readTime">0 min read</span>
+          </div>
+          <button id="copyPreviewBtn" class="btn-ghost text-xs">
+            <i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i> Copy Preview
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Post Optimization Score -->
+    <div class="mt-6 card p-6" id="scorePanel">
+      <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="bar-chart-3" class="w-5 h-5 text-linkedin-500"></i>
+        <h2 class="text-lg font-bold text-gray-900">Post Optimization Score</h2>
+        <span class="badge-success text-[10px]">Live</span>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Score Ring -->
+        <div class="md:col-span-3 flex flex-col items-center justify-center">
+          <div class="relative">
+            <svg class="score-ring" viewBox="0 0 36 36">
+              <circle class="ring-bg" cx="18" cy="18" r="15.5"></circle>
+              <circle class="ring-fg" id="scoreRingFg" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4"></circle>
+            </svg>
+            <div class="score-label">
+              <span id="scoreValue" class="text-2xl font-bold text-gray-300">—</span>
+              <span class="text-[9px] font-medium text-gray-400 uppercase tracking-wider">Score</span>
+            </div>
+          </div>
+          <p id="scoreGrade" class="text-xs font-semibold text-gray-400 mt-2">Start typing...</p>
+        </div>
+        
+        <!-- Score Breakdown -->
+        <div class="md:col-span-5">
+          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Breakdown</h3>
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-20 flex-shrink-0">Hook</span>
+              <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="scoreHookBar" class="h-full rounded-full bg-gray-300 transition-all duration-500" style="width:0%"></div></div>
+              <span id="scoreHookVal" class="text-xs font-medium text-gray-400 w-8 text-right">0</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-20 flex-shrink-0">Readability</span>
+              <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="scoreReadBar" class="h-full rounded-full bg-gray-300 transition-all duration-500" style="width:0%"></div></div>
+              <span id="scoreReadVal" class="text-xs font-medium text-gray-400 w-8 text-right">0</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-20 flex-shrink-0">Formatting</span>
+              <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="scoreFmtBar" class="h-full rounded-full bg-gray-300 transition-all duration-500" style="width:0%"></div></div>
+              <span id="scoreFmtVal" class="text-xs font-medium text-gray-400 w-8 text-right">0</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-20 flex-shrink-0">Structure</span>
+              <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="scoreStrBar" class="h-full rounded-full bg-gray-300 transition-all duration-500" style="width:0%"></div></div>
+              <span id="scoreStrVal" class="text-xs font-medium text-gray-400 w-8 text-right">0</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-20 flex-shrink-0">Length</span>
+              <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="scoreLenBar" class="h-full rounded-full bg-gray-300 transition-all duration-500" style="width:0%"></div></div>
+              <span id="scoreLenVal" class="text-xs font-medium text-gray-400 w-8 text-right">0</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tips -->
+        <div class="md:col-span-4">
+          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Suggestions</h3>
+          <ul id="scoreTips" class="space-y-2 text-xs text-gray-500">
+            <li class="flex items-start gap-2"><span class="text-gray-300">💡</span><span>Start typing to get optimization tips...</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Reference -->
+    <div class="mt-8 card p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="keyboard" class="w-5 h-5 text-linkedin-500"></i>
+        <h2 class="text-lg font-bold text-gray-900">Quick Reference</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Keyboard Shortcuts -->
+        <div>
+          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Keyboard Shortcuts</h3>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-center justify-between"><span class="text-gray-600">Bold</span> <kbd class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+B</kbd></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Italic</span> <kbd class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+I</kbd></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Monospace</span> <kbd class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+M</kbd></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Copy</span> <kbd class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+Shift+C</kbd></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Undo</span> <kbd class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+Z</kbd></li>
+          </ul>
+        </div>
+        <!-- Slash Commands -->
+        <div>
+          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Slash Commands</h3>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-center justify-between"><span class="text-gray-600">/bold</span> <span class="text-xs text-gray-400">Bold text</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">/italic</span> <span class="text-xs text-gray-400">Italic text</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">/heading</span> <span class="text-xs text-gray-400">Section header</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">/divider</span> <span class="text-xs text-gray-400">Line separator</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">/bullet</span> <span class="text-xs text-gray-400">Bullet list</span></li>
+          </ul>
+        </div>
+        <!-- Unicode Styles -->
+        <div>
+          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Unicode Styles</h3>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-center justify-between"><span class="text-gray-600">Bold</span> <span class="text-xs">𝗧𝗲𝘅𝘁</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Italic</span> <span class="text-xs">𝘛𝘦𝘹𝘵</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Monospace</span> <span class="text-xs">𝚃𝚎𝚡𝚝</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Script</span> <span class="text-xs">𝓣𝓮𝔁𝓽</span></li>
+            <li class="flex items-center justify-between"><span class="text-gray-600">Double-Struck</span> <span class="text-xs">𝕋𝕖𝕩𝕥</span></li>
+          </ul>
+        </div>
+        <!-- Tips -->
+        <div>
+          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Pro Tips</h3>
+          <ul class="space-y-2 text-sm text-gray-600">
+            <li class="flex items-start gap-2">
+              <span class="text-linkedin-500 mt-0.5">💡</span>
+              <span>LinkedIn posts perform best at 1,200–1,500 characters</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-linkedin-500 mt-0.5">📝</span>
+              <span>Use line breaks generously for readability</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-linkedin-500 mt-0.5">🎯</span>
+              <span>Bold your hook (first line) to stop the scroll</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-linkedin-500 mt-0.5">✨</span>
+              <span>Mix Unicode styles sparingly for impact</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  
+  <!-- Footer -->
+  <footer class="border-t border-gray-200 mt-12 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-sm text-gray-500">LinkedIn Text Formatter — Free tool to format your LinkedIn posts with Unicode styling.</p>
+      <p class="text-xs text-gray-400 mt-2">Built with Node.js, Tailwind CSS, and ❤️</p>
+    </div>
+  </footer>
+
+  <!-- Markdown Import Modal -->
+  <div id="markdownModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="modalOverlay"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-slide-up">
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">Import Markdown</h3>
+            <p class="text-sm text-gray-500 mt-0.5">Paste your markdown content below to convert to LinkedIn-friendly formatting</p>
+          </div>
+          <button id="closeModal" class="btn-icon">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="p-6 flex-1 overflow-auto">
+          <textarea id="markdownInput" class="w-full h-64 p-4 text-sm font-mono bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-linkedin-500/30 focus:border-linkedin-400 resize-none scrollbar-thin" placeholder="# Your Heading&#10;&#10;Paste your **markdown** content here...&#10;&#10;- Item 1&#10;- Item 2&#10;- Item 3"></textarea>
+        </div>
+        <div class="p-6 border-t border-gray-100 flex items-center justify-end gap-3">
+          <button id="cancelModal" class="btn-secondary">Cancel</button>
+          <button id="convertMarkdown" class="btn-primary">
+            <i data-lucide="wand-2" class="w-4 h-4"></i> Convert & Insert
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emoji Picker (simple) -->
+  <div id="emojiPicker" class="hidden fixed z-50 bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 w-80 max-h-72 overflow-y-auto scrollbar-thin">
+    <div class="grid grid-cols-8 gap-1" id="emojiGrid"></div>
+  </div>
+
+  <!-- Device Preview Modal -->
+  <div id="devicePreviewModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="deviceOverlay"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="relative">
+        <button id="closeDevicePreview" class="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition">
+          <i data-lucide="x" class="w-4 h-4 text-gray-600"></i>
+        </button>
+        <div id="deviceFrame" class="device-frame phone">
+          <div class="device-notch"></div>
+          <div class="device-screen">
+            <!-- LinkedIn app header -->
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between z-10">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-linkedin-500 flex items-center justify-center">
+                  <span class="text-white font-bold text-sm">in</span>
+                </div>
+                <div class="flex-1 bg-gray-100 rounded-md px-3 py-1.5">
+                  <span class="text-xs text-gray-400">Search</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <i data-lucide="message-square" class="w-5 h-5 text-gray-500"></i>
+              </div>
+            </div>
+            <!-- Post card -->
+            <div class="bg-white">
+              <div class="p-3 flex items-start gap-2.5">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-linkedin-400 to-linkedin-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">A</div>
+                <div class="min-w-0 flex-1">
+                  <p class="font-semibold text-[13px] text-gray-900">Alex Rivera</p>
+                  <p class="text-[11px] text-gray-500 leading-snug">Product Marketing Lead @ TechForward</p>
+                  <p class="text-[10px] text-gray-400">Just now · 🌐</p>
+                </div>
+              </div>
+              <div class="px-3 pb-3">
+                <div id="devicePreviewContent" class="text-[13px] leading-relaxed text-gray-800 whitespace-pre-wrap break-words"></div>
+              </div>
+              <div class="px-3 py-1.5 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                <span>👍 ❤️ 💡 42</span>
+                <span>8 comments</span>
+              </div>
+              <div class="px-1 py-0.5 border-t border-gray-100 flex items-center justify-around">
+                <button class="flex items-center gap-1.5 px-3 py-2 rounded text-[11px] font-medium text-gray-500">
+                  <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i> Like
+                </button>
+                <button class="flex items-center gap-1.5 px-3 py-2 rounded text-[11px] font-medium text-gray-500">
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Comment
+                </button>
+                <button class="flex items-center gap-1.5 px-3 py-2 rounded text-[11px] font-medium text-gray-500">
+                  <i data-lucide="repeat-2" class="w-3.5 h-3.5"></i> Repost
+                </button>
+                <button class="flex items-center gap-1.5 px-3 py-2 rounded text-[11px] font-medium text-gray-500">
+                  <i data-lucide="send" class="w-3.5 h-3.5"></i> Send
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p id="deviceLabel" class="text-center text-xs text-white/70 mt-3">iPhone 14 — 375×812</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/unicode-maps.js"></script>
+  <script src="/js/slash-commands.js"></script>
+  <script src="/js/emoji-data.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
