@@ -3,19 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LinkedIn Text Formatter — Bold, Italic, Unicode Styling</title>
-  <meta name="description" content="Free LinkedIn text formatter. Transform your posts with bold, italic, monospace, and decorative Unicode styling. Slash commands, markdown support, real-time preview.">
-  
-  <!-- Fonts -->
+
+  <!-- Primary SEO -->
+  <title>LinkedIn Text Formatter — Free Bold, Italic &amp; Unicode Post Styler</title>
+  <meta name="description" content="Free LinkedIn text formatter. Make your posts stand out with bold, italic, monospace, script and 20+ Unicode styles. Includes slash commands, markdown import, real-time preview, and post optimization score. No sign-up needed.">
+  <meta name="keywords" content="LinkedIn text formatter, LinkedIn bold text, LinkedIn italic text, LinkedIn post formatter, unicode text styler, format LinkedIn posts, bold text for LinkedIn, LinkedIn text styles, free LinkedIn tool, LinkedIn typography">
+  <meta name="author" content="LinkedIn Text Formatter">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://linkedinformatter.vercel.app/">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="shortcut icon" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+
+  <!-- Open Graph / Facebook / LinkedIn sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://linkedinformatter.vercel.app/">
+  <meta property="og:title" content="LinkedIn Text Formatter — Free Bold, Italic &amp; Unicode Post Styler">
+  <meta property="og:description" content="Make your LinkedIn posts stand out. Format text with bold, italic, monospace, script &amp; 20+ Unicode styles. Real-time preview, slash commands, markdown import, and post optimization score.">
+  <meta property="og:image" content="https://linkedinformatter.vercel.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="LinkedIn Text Formatter — format your posts with bold, italic and Unicode styles">
+  <meta property="og:site_name" content="LinkedIn Text Formatter">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://linkedinformatter.vercel.app/">
+  <meta name="twitter:title" content="LinkedIn Text Formatter — Free Bold, Italic &amp; Unicode Post Styler">
+  <meta name="twitter:description" content="Make your LinkedIn posts stand out. Bold, italic, monospace, script &amp; 20+ Unicode text styles. Real-time preview, slash commands, markdown import.">
+  <meta name="twitter:image" content="https://linkedinformatter.vercel.app/og-image.png">
+
+  <!-- PWA / Mobile browser chrome -->
+  <meta name="theme-color" content="#0A66C2">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="LI Formatter">
+
+  <!-- Resource hints -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  <!-- Lucide Icons -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  
-  <!-- Styles -->
+
+  <!-- Styles (preloaded for LCP) -->
+  <link rel="preload" href="/css/styles.css" as="style">
   <link href="/css/styles.css" rel="stylesheet">
+
+  <!-- Lucide Icons (deferred — non-render-blocking) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen">
   
@@ -89,6 +132,11 @@
   
   <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- SEO tagline (visible, keyword-reinforcing) -->
+    <p class="text-sm text-gray-500 mb-4 text-center">
+      Free LinkedIn post formatter — apply <strong class="font-medium text-gray-700">bold</strong>, <em class="text-gray-700">italic</em>, monospace, script &amp; 20+ Unicode styles that render natively in LinkedIn. No account needed.
+    </p>
     
     <!-- Editor + Preview Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -423,13 +471,53 @@
       </div>
     </div>
 
+    <!-- FAQ / About Section (SEO content + rich snippets) -->
+    <section class="mt-8 card p-6" aria-label="Frequently asked questions">
+      <div class="flex items-center gap-2 mb-5">
+        <i data-lucide="help-circle" class="w-5 h-5 text-linkedin-500"></i>
+        <h2 class="text-lg font-bold text-gray-900">Frequently Asked Questions</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 mb-1">How do I make bold text on LinkedIn?</h3>
+          <p class="text-sm text-gray-600">LinkedIn doesn't support native bold in posts. Paste your text into the editor, select it, and click the <strong>𝗕</strong> button (or press <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+B</kbd>). Copy the result and paste directly into LinkedIn — it renders as bold on all devices.</p>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 mb-1">What Unicode text styles are available?</h3>
+          <p class="text-sm text-gray-600">20+ styles: 𝗕𝗼𝗹𝗱, 𝘐𝘵𝘢𝘭𝘪𝘤, 𝑩𝒐𝒍𝒅 𝑰𝒕𝒂𝒍𝒊𝒄, 𝙼𝚘𝚗𝚘𝚜𝚙𝚊𝚌𝚎, 𝓢𝓬𝓻𝓲𝓹𝓽, 𝔉𝔯𝔞𝔨𝔱𝔲𝔯, 𝔻𝕠𝕦𝕓𝕝𝕖-𝕊𝕥𝕣𝕦𝕔𝕜, Ⓒⓘⓡⓒⓛⓔⓓ, and more. All display correctly in LinkedIn posts, comments, and messages.</p>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 mb-1">Can I convert Markdown to LinkedIn format?</h3>
+          <p class="text-sm text-gray-600">Yes. Click <strong>Import MD</strong> or press <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+M</kbd>, paste your Markdown, and the tool converts headings, bold, italic, code blocks, lists, and blockquotes into LinkedIn-compatible Unicode formatting.</p>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 mb-1">Is this tool free? Do I need an account?</h3>
+          <p class="text-sm text-gray-600">Completely free — no sign-up, no account, no watermarks. All formatting happens in your browser. Your draft is auto-saved to localStorage so you never lose your work.</p>
+        </div>
+      </div>
+    </section>
+
   </main>
   
   <!-- Footer -->
-  <footer class="border-t border-gray-200 mt-12 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-sm text-gray-500">LinkedIn Text Formatter — Free tool to format your LinkedIn posts with Unicode styling.</p>
-      <p class="text-xs text-gray-400 mt-2">Built with Node.js, Tailwind CSS, and ❤️</p>
+  <footer class="border-t border-gray-200 mt-12 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-6">
+        <p class="text-sm font-semibold text-gray-700">LinkedIn Text Formatter</p>
+        <p class="text-sm text-gray-500 mt-1 max-w-2xl mx-auto">Free online tool to format LinkedIn posts with Unicode text styling — bold, italic, monospace, script, fraktur, and 20+ styles. Add structure to your posts without any LinkedIn restrictions.</p>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-gray-400 mb-4">
+        <span>Bold Text for LinkedIn</span>
+        <span>·</span>
+        <span>Italic Text for LinkedIn</span>
+        <span>·</span>
+        <span>Unicode Post Formatter</span>
+        <span>·</span>
+        <span>Markdown to LinkedIn</span>
+        <span>·</span>
+        <span>LinkedIn Post Optimizer</span>
+      </div>
+      <p class="text-xs text-gray-400 text-center">Built with Node.js, Tailwind CSS, and ❤️ — Not affiliated with LinkedIn Corporation.</p>
     </div>
   </footer>
 
@@ -528,6 +616,94 @@
       </div>
     </div>
   </div>
+
+  <!-- Structured Data: SoftwareApplication + FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "LinkedIn Text Formatter",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "url": "https://linkedinformatter.vercel.app/",
+        "description": "Free LinkedIn text formatter with bold, italic, monospace, script, fraktur and 20+ Unicode styles. Includes slash commands, markdown import, real-time LinkedIn post preview, post optimization score, emoji picker, and one-click copy.",
+        "screenshot": "https://linkedinformatter.vercel.app/og-image.png",
+        "featureList": [
+          "20+ Unicode text styles: bold, italic, monospace, script, fraktur, double-struck, circled, squared",
+          "25+ slash commands for fast formatting",
+          "Markdown to LinkedIn text conversion",
+          "Real-time LinkedIn post preview",
+          "Post optimization score with actionable tips",
+          "Phone and tablet device preview",
+          "Emoji picker with curated categories",
+          "One-click clipboard copy",
+          "Export as .txt or .md",
+          "Keyboard shortcuts (Ctrl+B, Ctrl+I, Ctrl+M)",
+          "Undo/redo history (50 levels)",
+          "Auto-save draft to localStorage"
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "name": "LinkedIn Text Formatter",
+        "url": "https://linkedinformatter.vercel.app/",
+        "description": "Free tool to format LinkedIn posts with Unicode text styling — bold, italic, monospace, script and more."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I make bold text on LinkedIn?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "LinkedIn does not support native bold formatting in posts. Use LinkedIn Text Formatter to convert your text to Unicode bold characters (𝗹𝗶𝗸𝗲 𝘁𝗵𝗶𝘀) that display as bold in LinkedIn posts, comments, and messages on all devices."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I format text in LinkedIn posts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "LinkedIn does not have a built-in text formatter. You can use Unicode characters to create bold, italic, monospace, script, and other styled text. LinkedIn Text Formatter provides a free tool — type or paste your content, apply styles, and copy the formatted text directly into LinkedIn."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is LinkedIn Text Formatter free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, LinkedIn Text Formatter is completely free. No sign-up or account required. All formatting happens instantly in your browser."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What Unicode text styles are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "LinkedIn Text Formatter supports 20+ Unicode styles including Bold (𝗔𝗕𝗖), Italic (𝐴𝐵𝐶), Bold Italic, Monospace (𝙰𝙱𝙲), Script, Bold Script (𝓐𝓑𝓒), Fraktur (𝔄𝔅ℭ), Double-Struck (𝔸𝔹ℂ), Circled (ⒶⒷⒸ), Squared, Fullwidth, and more."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I import Markdown into LinkedIn posts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. LinkedIn Text Formatter converts Markdown (headings, bold, italic, code, lists, blockquotes) into LinkedIn-compatible Unicode formatting. Click 'Import MD' or press Ctrl+M to open the markdown import dialog."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 
   <!-- Scripts -->
   <script src="/js/unicode-maps.js"></script>

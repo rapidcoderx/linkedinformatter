@@ -1,0 +1,11 @@
+# robots.txt — LinkedIn Text Formatter
+# https://linkedinformatter.vercel.app/
+
+User-agent: *
+Allow: /
+
+# Block internal API endpoints from indexing
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://linkedinformatter.vercel.app/sitemap.xml
