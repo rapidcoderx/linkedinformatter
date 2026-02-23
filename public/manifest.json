@@ -1,0 +1,19 @@
+{
+  "name": "LinkedIn Text Formatter",
+  "short_name": "LI Formatter",
+  "description": "Free LinkedIn post formatter with bold, italic, monospace, script and 20+ Unicode text styles. Real-time preview, slash commands, markdown import.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#0A66C2",
+  "orientation": "any",
+  "categories": ["utilities", "productivity", "social"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

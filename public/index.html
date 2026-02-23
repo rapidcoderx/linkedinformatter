@@ -12,10 +12,11 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <link rel="canonical" href="https://linkedinformatter.vercel.app/">
 
-  <!-- Favicon -->
+  <!-- Favicon & PWA Manifest -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="shortcut icon" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
 
   <!-- Open Graph / Facebook / LinkedIn sharing -->
   <meta property="og:type" content="website">
@@ -131,7 +132,7 @@
   </header>
   
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" aria-label="LinkedIn text formatting tool">
 
     <!-- SEO tagline (visible, keyword-reinforcing) -->
     <p class="text-sm text-gray-500 mb-4 text-center">
@@ -416,6 +417,7 @@
         <!-- Keyboard Shortcuts -->
         <div>
           <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Keyboard Shortcuts</h3>
+          <!-- Ctrl+B for bold, Ctrl+I for italic, Ctrl+M for markdown -->
           <ul class="space-y-2 text-sm">
             <li class="flex items-center justify-between"><span class="text-gray-600">Bold</span> <kbd class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+B</kbd></li>
             <li class="flex items-center justify-between"><span class="text-gray-600">Italic</span> <kbd class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+I</kbd></li>
@@ -437,7 +439,7 @@
         </div>
         <!-- Unicode Styles -->
         <div>
-          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Unicode Styles</h3>
+          <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Unicode Text Styles for LinkedIn</h3>
           <ul class="space-y-2 text-sm">
             <li class="flex items-center justify-between"><span class="text-gray-600">Bold</span> <span class="text-xs">𝗧𝗲𝘅𝘁</span></li>
             <li class="flex items-center justify-between"><span class="text-gray-600">Italic</span> <span class="text-xs">𝘛𝘦𝘹𝘵</span></li>
@@ -617,11 +619,22 @@
     </div>
   </div>
 
-  <!-- Structured Data: SoftwareApplication + FAQPage -->
+  <!-- Structured Data: SoftwareApplication + FAQPage + BreadcrumbList -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "LinkedIn Text Formatter",
+            "item": "https://linkedinformatter.vercel.app/"
+          }
+        ]
+      },
       {
         "@type": "SoftwareApplication",
         "name": "LinkedIn Text Formatter",
