@@ -1,5 +1,5 @@
 # robots.txt — LinkedIn Text Formatter
-# https://linkedinformatter.vercel.app/
+# https://linkedinformatter-xi.vercel.app/
 
 User-agent: *
 Allow: /
@@ -8,4 +8,4 @@ Allow: /
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://linkedinformatter.vercel.app/sitemap.xml
+Sitemap: https://linkedinformatter-xi.vercel.app/sitemap.xml
