@@ -508,6 +508,20 @@
         <p class="text-sm font-semibold text-gray-700">LinkedIn Text Formatter</p>
         <p class="text-sm text-gray-500 mt-1 max-w-2xl mx-auto">Free online tool to format LinkedIn posts with Unicode text styling — bold, italic, monospace, script, fraktur, and 20+ styles. Add structure to your posts without any LinkedIn restrictions.</p>
       </div>
+
+      <!-- Visitor Counter -->
+      <div class="flex justify-center mb-6">
+        <div id="visitorCounterWidget" class="flex items-center gap-3 bg-white border border-gray-200 rounded-2xl px-5 py-3 shadow-sm" title="Total unique visitors">
+          <span class="relative flex h-2.5 w-2.5 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+          </span>
+          <span class="text-xs text-gray-500 font-medium">Visitors</span>
+          <span class="w-px h-4 bg-gray-200"></span>
+          <span id="visitorCount" class="text-sm font-bold text-linkedin-500 tabular-nums min-w-[4rem] text-center tracking-tight">—</span>
+        </div>
+      </div>
+
       <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-gray-400 mb-4">
         <span>Bold Text for LinkedIn</span>
         <span>·</span>
@@ -728,6 +742,43 @@
   <script type="module">
     import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1.6.1/dist/index.mjs';
     inject();
+  </script>
+
+  <!-- Visitor Counter -->
+  <script>
+    (async function initVisitorCounter() {
+      const el = document.getElementById('visitorCount');
+      if (!el) return;
+
+      function animateCount(target) {
+        if (!target || target <= 0) { el.textContent = target ? target.toLocaleString() : '—'; return; }
+        const duration = 1400;
+        const steps = 50;
+        const stepMs = duration / steps;
+        const increment = target / steps;
+        let current = 0;
+        const timer = setInterval(() => {
+          current = Math.min(current + increment, target);
+          el.textContent = Math.floor(current).toLocaleString();
+          if (current >= target) clearInterval(timer);
+        }, stepMs);
+      }
+
+      try {
+        // Increment counter (POST) then display result
+        const res = await fetch('/api/counter', { method: 'POST' });
+        if (!res.ok) throw new Error('non-ok');
+        const data = await res.json();
+        // counterapi.dev v2: { code, data: { up_count, down_count, ... } }
+        const count = typeof data?.data?.up_count === 'number' ? data.data.up_count
+          : typeof data?.data?.count === 'number' ? data.data.count
+          : typeof data?.count === 'number' ? data.count
+          : null;
+        if (count !== null) animateCount(count);
+      } catch (_) {
+        el.textContent = '—';
+      }
+    })();
   </script>
 </body>
 </html>

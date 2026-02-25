@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const compression = require('compression');
@@ -17,7 +19,7 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://api.counterapi.dev"],
     },
   },
 }));
@@ -48,6 +50,38 @@ app.post('/api/markdown-to-linkedin', (req, res) => {
 // API: Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+const COUNTER_BASE = 'https://api.counterapi.dev/v2/sathish-kumars-team-3044/linkedinformtter';
+
+// API: Increment visitor counter and return new value (called on page load)
+app.post('/api/counter', async (req, res) => {
+  try {
+    const response = await fetch(`${COUNTER_BASE}/up`, {
+      headers: { 'Authorization': `Bearer ${process.env.COUNTER_KEY}` }
+    });
+    if (!response.ok) return res.status(response.status).json({ error: 'Counter API error' });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('Counter increment error:', err);
+    res.status(500).json({ error: 'Failed to update counter' });
+  }
+});
+
+// API: Get current counter value (read-only)
+app.get('/api/counter', async (req, res) => {
+  try {
+    const response = await fetch(COUNTER_BASE, {
+      headers: { 'Authorization': `Bearer ${process.env.COUNTER_KEY}` }
+    });
+    if (!response.ok) return res.status(response.status).json({ error: 'Counter API error' });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('Counter fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch counter' });
+  }
 });
 
 // Fallback to index.html for SPA routing (Express v5 compatible)
